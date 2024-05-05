@@ -30,6 +30,12 @@ jobs:
       
       - run: pnpm install --frozen-lockfile
 
+      - name: Generate Key
+        env: 
+          MY_API_TOKEN: ${{ secrets.MY_API_TOKEN }}
+          MY_PASSWORD: ${{ secrets.MY_PASSWORD }}
+        run: pnpm encrypt $MY_API_TOKEN $MY_PASSWORD
+
       - name: Build
         run: pnpm run build
 
