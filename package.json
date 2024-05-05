@@ -1,5 +1,5 @@
 {
-  "name": "my-badger",
+  "name": "my-budger",
   "private": true,
   "version": "0.0.1",
   "type": "module",
@@ -10,7 +10,11 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "vue": "^3.4.21"
+    "@vueuse/core": "^10.9.0",
+    "axios": "^1.6.8",
+    "pinia": "^2.1.7",
+    "vue": "^3.4.21",
+    "wave-ui": "^3.12.0"
   },
   "devDependencies": {
     "@vitejs/plugin-vue": "^5.0.4",

@@ -1,29 +1,34 @@
 <script setup lang="ts">
-import { ref, computed } from 'vue';
-import { decrypt } from './utils';
+import { onMounted, ref } from 'vue';
+import AuthCom from './components/AuthCom.vue';
+import BudgetList from './components/BudgetList.vue';
+import { BUDGET_TOKEN_LOCAL_STORAGE_KEY } from './constant';
+import { useUserStore } from './store';
 
-const password = ref('');
-const token = computed(() => {
-  return decrypt(password.value);
+const isAuth = ref(false);
+
+const userStore = useUserStore();
+
+onMounted(() => {
+  const token = localStorage.getItem(BUDGET_TOKEN_LOCAL_STORAGE_KEY);
+  if (token) {
+    userStore.setToken(token);
+    isAuth.value = true;
+  }
 });
 </script>
 
 <template>
-  <input v-model="password" type="text" />
-  <div>{{ token }}</div>
+  <main class="main-wrapper">
+    <AuthCom v-if="!isAuth" @validated="isAuth = true" />
+    <BudgetList v-if="isAuth" />
+  </main>
 </template>
 
 <style scoped>
-.logo {
-  height: 6em;
-  padding: 1.5em;
-  will-change: filter;
-  transition: filter 300ms;
-}
-.logo:hover {
-  filter: drop-shadow(0 0 2em #646cffaa);
-}
-.logo.vue:hover {
-  filter: drop-shadow(0 0 2em #42b883aa);
+.main-wrapper {
+  padding: 1rem;
+  width: 100vw;
+  height: 100vh;
 }
 </style>
