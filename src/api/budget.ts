@@ -1,25 +1,14 @@
-import { OWNER, REPO } from '../constant';
-import { gbReq } from './base';
+import { getIssues, searchIssues } from './issue';
 
-export function searchBudgets({ content = '' }: SearchBudgetParams) {
-  return gbReq.get('/search/issues', {
-    params: {
-      q: `${content} is:issue repo:${OWNER}/${REPO}`,
-    },
-  }) as Promise<{
-    incomplete_results: boolean;
-    total_count: number;
-    items: IssueItem[];
-  }>;
+export async function searchBudgets({
+  content = '',
+  labels = [],
+}: SearchBudgetParams) {
+  return searchIssues({ content, labels });
 }
 
-export function getBudgets(params: GetBudgetParams = { page: 1 }) {
-  return gbReq.get(`/repos/${OWNER}/${REPO}/issues`, {
-    params: {
-      per_page: 10,
-      page: params.page,
-    },
-  }) as Promise<IssueItem[]>;
+export async function getBudgets(params: GetBudgetParams = { page: 1 }) {
+  return getIssues(params);
 }
 
 export type GetBudgetParams = {
@@ -28,7 +17,7 @@ export type GetBudgetParams = {
 
 export type SearchBudgetParams = {
   content?: string;
-  label?: string[];
+  labels?: string[];
   date?: number;
 };
 

@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { computed, ref, defineEmits } from 'vue';
+import { computed, ref } from 'vue';
 import { searchBudgets } from '../api';
 import { useUserStore } from '../store';
 import { decrypt } from '../utils';
