@@ -1,7 +1,16 @@
-<script setup lang="ts"></script>
+<script setup lang="ts">
+import { ref, computed } from 'vue';
+import { decrypt } from './utils';
+
+const password = ref('');
+const token = computed(() => {
+  return decrypt(password.value);
+});
+</script>
 
 <template>
-  <div>APP</div>
+  <input v-model="password" type="text" />
+  <div>{{ token }}</div>
 </template>
 
 <style scoped>
