@@ -1,9 +1,10 @@
 <script lang="ts" setup>
 import { onMounted, ref } from 'vue';
-import { IssueItem, getBudgets } from '../api';
+import { getBudgets } from '../api';
+import { BudgetItem } from '../type';
 import { AxiosError } from 'axios';
 
-const budgetsList = ref<IssueItem[]>([]);
+const budgetsList = ref<BudgetItem[]>([]);
 const loading = ref(true);
 const errorMsg = ref('');
 
@@ -23,7 +24,9 @@ onMounted(async () => {
 <template>
   <div class="budget-list">
     <div v-for="budget in budgetsList" :key="budget.id" class="budget-item">
-      {{ budget.title }}
+      <div class="price">{{ budget.price }}</div>
+      <div class="desc">{{ budget.desc }}</div>
+      <div class="date">{{ budget.created }}</div>
     </div>
     <w-progress v-if="loading" circle :model-value="undefined"></w-progress>
     <div v-if="errorMsg">{{ errorMsg }}</div>
@@ -32,10 +35,11 @@ onMounted(async () => {
 
 <style lang="scss" scoped>
 .budget-list {
-  display: flex;
-  justify-content: center;
-  align-items: center;
   width: 100%;
-  height: 100%;
+  flex: 1;
+  margin-top: 1rem;
+  .budget-item {
+    border-bottom: 1px solid #e6e6e6;
+  }
 }
 </style>

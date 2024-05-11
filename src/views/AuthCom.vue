@@ -11,8 +11,8 @@ const emit = defineEmits(['validated']);
 const userStore = useUserStore();
 
 const errorMsg = ref('');
-
 const password = ref('');
+
 const token = computed(() => {
   return decrypt(password.value);
 });
