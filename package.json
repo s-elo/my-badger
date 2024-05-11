@@ -7,7 +7,9 @@
     "dev": "vite",
     "build": "vue-tsc && vite build",
     "encrypt": "node ./scripts/encrypt.mjs",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "ts-check": "vue-tsc",
+    "prepare": "git config --local core.hooksPath ./.git/hooks/ && simple-git-hooks"
   },
   "dependencies": {
     "@vueuse/core": "^10.9.0",
@@ -27,7 +29,11 @@
     "sass": "^1.57.1",
     "typescript": "^5.2.2",
     "vite": "^5.2.0",
-    "vue-tsc": "^2.0.6"
+    "vue-tsc": "^2.0.6",
+    "simple-git-hooks": "^2.9.0"
+  },
+  "simple-git-hooks": {
+    "pre-commit": "pnpm ts-check"
   },
   "engines": {
     "node": ">=18.0.0"

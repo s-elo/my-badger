@@ -46,6 +46,9 @@ devDependencies:
   sass:
     specifier: ^1.57.1
     version: 1.75.0
+  simple-git-hooks:
+    specifier: ^2.9.0
+    version: 2.11.1
   typescript:
     specifier: ^5.2.2
     version: 5.4.5
@@ -1795,6 +1798,12 @@ packages:
   /shebang-regex@3.0.0:
     resolution: {integrity: sha512-7++dFhtcx3353uBaq8DDR4NuxBetBzC7ZQOhmTQInHEd6bSrXdiEyzCvG07Z44UYdLShWUyXt5M/yhz8ekcb1A==}
     engines: {node: '>=8'}
+    dev: true
+
+  /simple-git-hooks@2.11.1:
+    resolution: {integrity: sha512-tgqwPUMDcNDhuf1Xf6KTUsyeqGdgKMhzaH4PAZZuzguOgTl5uuyeYe/8mWgAr6IBxB5V06uqEf6Dy37gIWDtDg==}
+    hasBin: true
+    requiresBuild: true
     dev: true
 
   /slash@3.0.0:
