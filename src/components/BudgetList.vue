@@ -1,17 +1,17 @@
 <script lang="ts" setup>
 import { onMounted, ref } from 'vue';
-import { getBudgets } from '../api';
-import { BudgetItem } from '../type';
 import { AxiosError } from 'axios';
+import { useBudgetStore } from '../store';
+import BudgetItem from './BudgetItem.vue';
 
-const budgetsList = ref<BudgetItem[]>([]);
+const budgetStore = useBudgetStore();
+
 const loading = ref(true);
 const errorMsg = ref('');
 
 onMounted(async () => {
   try {
-    const budgets = await getBudgets();
-    budgetsList.value = budgets;
+    await budgetStore.fetchBudgets();
   } catch (e) {
     errorMsg.value =
       (e as AxiosError<{ message: string }>).response?.data?.message || 'Error';
@@ -23,13 +23,16 @@ onMounted(async () => {
 
 <template>
   <div class="budget-list">
-    <div v-for="budget in budgetsList" :key="budget.id" class="budget-item">
-      <div class="price">{{ budget.price }}</div>
-      <div class="desc">{{ budget.desc }}</div>
-      <div class="date">{{ budget.created }}</div>
-    </div>
-    <w-progress v-if="loading" circle :model-value="undefined"></w-progress>
+    <BudgetItem
+      v-for="budget in budgetStore.budgetList"
+      :key="budget.id"
+      :budget="budget"
+    />
+    <w-progress v-if="loading" circle class="loading"></w-progress>
     <div v-if="errorMsg">{{ errorMsg }}</div>
+    <div v-if="!loading && !budgetStore.budgetList.length" class="no-data">
+      Start Your Budget Now!
+    </div>
   </div>
 </template>
 
@@ -38,8 +41,15 @@ onMounted(async () => {
   width: 100%;
   flex: 1;
   margin-top: 1rem;
-  .budget-item {
-    border-bottom: 1px solid #e6e6e6;
+  overflow: auto;
+  display: flex;
+  flex-direction: column;
+  .no-data {
+    color: #c9c4c4;
+    align-self: center;
+  }
+  .loading {
+    align-self: center;
   }
 }
 </style>

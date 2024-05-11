@@ -19,11 +19,11 @@ const balance = computed(
 
 <style lang="scss" scoped>
 .summary-data {
+  overflow: auto;
   width: 100%;
-  height: 30px;
-  display: flex;
   [class^='total'] {
-    margin-right: 1rem;
+    margin-bottom: 7px;
+    width: fit-content;
   }
 }
 </style>

@@ -19,11 +19,13 @@ export async function searchIssues({
   }>;
 }
 
-export async function getIssues(params: GetIssuesParams = { page: 1 }) {
+export async function getIssues(
+  params: GetIssuesParams = { pageIndex: 1, pageSize: 10 },
+) {
   return gbReq.get(`/repos/${OWNER}/${REPO}/issues`, {
     params: {
-      per_page: 10,
-      page: params.page,
+      per_page: params.pageSize,
+      page: params.pageIndex,
     },
   }) as Promise<IssueItem[]>;
 }
@@ -46,7 +48,14 @@ export async function getIssue(issueNum: number) {
   ) as Promise<IssueItem>;
 }
 
-export type UpdateIssueParams = CreateIssueParams;
+export async function checkIssue(content: string) {
+  return (await searchIssues({ content })).items[0];
+}
+
+export type UpdateIssueParams = {
+  title?: string;
+  body: string;
+};
 
 export type CreateIssueParams = {
   title: string;
@@ -60,7 +69,8 @@ export type SearchIssuesParams = {
 };
 
 export type GetIssuesParams = {
-  page?: number;
+  pageIndex?: number;
+  pageSize?: number;
 };
 
 export type IssueItem = {
@@ -69,4 +79,5 @@ export type IssueItem = {
   created_at: string;
   body: string;
   title: string;
+  number: number; // as issue id
 };

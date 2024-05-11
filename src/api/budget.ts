@@ -1,21 +1,59 @@
 import { BudgetItem } from '../type';
-import { base64ToStr, parseBudgets, strToBase64 } from '../utils';
-import { getIssues, searchIssues } from './issue';
+import {
+  base64ToStr,
+  formatDate,
+  getCurrentRecordTitle,
+  issuesToBudgets,
+  strToBase64,
+  stringifyBudget,
+} from '../utils';
+import {
+  checkIssue,
+  createIssue,
+  getIssues,
+  searchIssues,
+  updateIssue,
+} from './issue';
 import { createOrUpdateRepoContent, getRepoContent } from './repo-content';
 
 export async function searchBudgets({
   content = '',
   labels = [],
 }: SearchBudgetParams) {
-  return searchIssues({ content, labels });
+  const issues = await searchIssues({ content, labels });
+  return issuesToBudgets(issues.items);
 }
 
-export async function getBudgets(params: GetBudgetParams = { page: 1 }) {
+export async function getBudgets(params?: GetBudgetParams) {
   const issues = await getIssues(params);
-  return issues.reduce<BudgetItem[]>((budgets, issue) => {
-    budgets.push(...parseBudgets(issue.body));
-    return budgets;
-  }, []);
+  return issuesToBudgets(issues);
+}
+
+export async function addBudget(budget: BudgetItem) {
+  const curTime = formatDate(Date.now());
+  const processedBudget: BudgetItem = {
+    ...budget,
+    created: curTime,
+    updated: curTime,
+  };
+
+  const curIssueTitle = getCurrentRecordTitle();
+
+  const issueExisted = await checkIssue(curIssueTitle);
+  if (issueExisted) {
+    processedBudget.issueId = issueExisted.number;
+    await updateIssue(issueExisted.number, {
+      body: `${stringifyBudget(processedBudget)}\n${issueExisted.body}`,
+    });
+  } else {
+    const issue = await createIssue({
+      title: curIssueTitle,
+      body: stringifyBudget(processedBudget),
+    });
+    processedBudget.issueId = issue.number;
+  }
+
+  return processedBudget;
 }
 
 export async function getSummary() {
@@ -25,7 +63,9 @@ export async function getSummary() {
 }
 
 export async function updateSummary(sum: Summary) {
+  console.log(sum, JSON.stringify(sum));
   const encodedSum = strToBase64(JSON.stringify(sum));
+  console.log(encodedSum);
   return createOrUpdateRepoContent(
     'summary.json',
     encodedSum,
@@ -36,12 +76,13 @@ export async function updateSummary(sum: Summary) {
 export type Summary = {
   income: number;
   spending: number;
-  tags: Record<string, Omit<Summary, 'tags'>>;
+  tags: Record<string, Omit<Summary, 'tags' | 'incrementalId'>>;
   incrementalId: number; // for budget item record
 };
 
 export type GetBudgetParams = {
-  page?: number;
+  pageIndex?: number;
+  pageSize?: number;
 };
 
 export type SearchBudgetParams = {
