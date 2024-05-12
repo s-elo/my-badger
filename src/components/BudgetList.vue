@@ -7,14 +7,17 @@ import BudgetItem from './BudgetItem.vue';
 const budgetStore = useBudgetStore();
 
 const loading = ref(true);
-const errorMsg = ref('');
 
 onMounted(async () => {
   try {
     await budgetStore.fetchBudgets();
   } catch (e) {
-    errorMsg.value =
-      (e as AxiosError<{ message: string }>).response?.data?.message || 'Error';
+    ElMessage({
+      message:
+        (e as AxiosError<{ message: string }>).response?.data?.message ||
+        (e as Error).message,
+      type: 'error',
+    });
   } finally {
     loading.value = false;
   }
@@ -22,17 +25,18 @@ onMounted(async () => {
 </script>
 
 <template>
-  <div class="budget-list">
+  <div v-loading="loading" class="budget-list">
     <BudgetItem
       v-for="budget in budgetStore.budgetList"
       :key="budget.id"
       :budget="budget"
     />
-    <w-progress v-if="loading" circle class="loading"></w-progress>
-    <div v-if="errorMsg">{{ errorMsg }}</div>
-    <div v-if="!loading && !budgetStore.budgetList.length" class="no-data">
-      Start Your Budget Now!
-    </div>
+    <el-empty
+      v-if="!loading && !budgetStore.budgetList.length"
+      class="no-data"
+      image="https://api.oneneko.com/v1/bing_today"
+      description="Start Your Budget Now!"
+    />
   </div>
 </template>
 

@@ -11,11 +11,10 @@ const userStore = useUserStore();
 const budgetStore = useBudgetStore();
 
 onMounted(() => {
-  budgetStore.getSummary();
-
   const token = localStorage.getItem(BUDGET_TOKEN_LOCAL_STORAGE_KEY);
   if (token) {
     userStore.setToken(token);
+    budgetStore.getSummary();
     isAuth.value = true;
   }
 });

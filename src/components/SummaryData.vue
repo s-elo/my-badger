@@ -7,23 +7,33 @@ const budgetStore = useBudgetStore();
 const balance = computed(
   () => budgetStore.totalIncoming - budgetStore.totalSpending,
 );
+const loading = computed(() => !budgetStore.summary);
 </script>
 
 <template>
-  <div class="summary-data">
-    <div class="total-data">balance: {{ balance }}</div>
-    <div class="total-income">income: {{ budgetStore.totalIncoming }}</div>
-    <div class="total-spending">spending: {{ budgetStore.totalSpending }}</div>
-  </div>
+  <el-row>
+    <el-col :span="8">
+      <el-statistic v-loading="loading" title="Balance" :value="balance" />
+    </el-col>
+    <el-col :span="8">
+      <el-statistic
+        v-loading="loading"
+        title="Income"
+        :value="budgetStore.totalIncoming"
+      />
+    </el-col>
+    <el-col :span="8">
+      <el-statistic
+        v-loading="loading"
+        title="Spending"
+        :value="budgetStore.totalSpending"
+      />
+    </el-col>
+  </el-row>
 </template>
 
 <style lang="scss" scoped>
-.summary-data {
-  overflow: auto;
-  width: 100%;
-  [class^='total'] {
-    margin-bottom: 7px;
-    width: fit-content;
-  }
+.el-col {
+  text-align: center;
 }
 </style>

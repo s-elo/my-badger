@@ -1,7 +1,6 @@
 import { BudgetItem } from '../type';
 import {
   base64ToStr,
-  formatDate,
   getCurrentRecordTitle,
   issuesToBudgets,
   strToBase64,
@@ -30,30 +29,23 @@ export async function getBudgets(params?: GetBudgetParams) {
 }
 
 export async function addBudget(budget: BudgetItem) {
-  const curTime = formatDate(Date.now());
-  const processedBudget: BudgetItem = {
-    ...budget,
-    created: curTime,
-    updated: curTime,
-  };
-
   const curIssueTitle = getCurrentRecordTitle();
 
   const issueExisted = await checkIssue(curIssueTitle);
   if (issueExisted) {
-    processedBudget.issueId = issueExisted.number;
+    budget.issueId = issueExisted.number;
     await updateIssue(issueExisted.number, {
-      body: `${stringifyBudget(processedBudget)}\n${issueExisted.body}`,
+      body: `${stringifyBudget(budget)}\n${issueExisted.body}`,
     });
   } else {
     const issue = await createIssue({
       title: curIssueTitle,
-      body: stringifyBudget(processedBudget),
+      body: stringifyBudget(budget),
     });
-    processedBudget.issueId = issue.number;
+    budget.issueId = issue.number;
   }
 
-  return processedBudget;
+  return budget;
 }
 
 export async function getSummary() {

@@ -16,11 +16,11 @@ const editBudget = (budget: BudgetItem) => {
 
 <template>
   <div class="budget-item">
-    <w-tag class="type">{{ budget.type }}</w-tag>
+    <el-tag class="type">{{ budget.type }}</el-tag>
     <div class="price">{{ budget.price }}</div>
     <div class="desc">{{ budget.desc }}</div>
     <div class="date">{{ budget.created.split(' ')[0] }}</div>
-    <w-button outline sm @click="show = true">🔧</w-button>
+    <el-button outline size="small" @click="show = true">🔧</el-button>
     <BudgetForm
       :show="show"
       :budget="budget"

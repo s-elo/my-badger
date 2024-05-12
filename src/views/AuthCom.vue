@@ -1,7 +1,6 @@
 <script lang="ts" setup>
 import { computed, ref } from 'vue';
-import { searchBudgets } from '../api';
-import { useUserStore } from '../store';
+import { useUserStore, useBudgetStore } from '../store';
 import { decrypt } from '../utils';
 import { AxiosError } from 'axios';
 import { BUDGET_TOKEN_LOCAL_STORAGE_KEY } from '../constant';
@@ -9,9 +8,10 @@ import { BUDGET_TOKEN_LOCAL_STORAGE_KEY } from '../constant';
 const emit = defineEmits(['validated']);
 
 const userStore = useUserStore();
+const budgetStore = useBudgetStore();
 
-const errorMsg = ref('');
 const password = ref('');
+const checking = ref(false);
 
 const token = computed(() => {
   return decrypt(password.value);
@@ -20,33 +20,34 @@ const token = computed(() => {
 const auth = async () => {
   userStore.setToken(token.value);
   try {
-    const budgets = await searchBudgets({ content: 'test-00' });
-    emit('validated', budgets);
+    checking.value = true;
+    await budgetStore.getSummary();
+    emit('validated');
     localStorage.setItem(BUDGET_TOKEN_LOCAL_STORAGE_KEY, token.value);
   } catch (e) {
-    errorMsg.value =
-      (e as AxiosError<{ message: string }>).response?.data?.message || 'Error';
+    ElMessage({
+      message:
+        (e as AxiosError<{ message: string }>).response?.data?.message ||
+        (e as Error).message,
+      type: 'error',
+    });
+  } finally {
+    checking.value = false;
   }
 };
 </script>
 
 <template>
   <div class="auth">
-    <w-input v-model="password">😜</w-input>
-    <w-button class="auth-btn" @click="auth">Auth</w-button>
-    <w-notification
-      v-model="errorMsg"
-      :timeout="1000"
-      error
-      plain
-      round
-      shadow
-      top
-      center
-      absolute
+    <img src="../assets/budgets.svg" class="budget-icon" />
+    <el-input v-model="password" type="password" placeholder="Who Are You?">
+      <template #prefix>
+        <div class="prefix">😜</div>
+      </template>
+    </el-input>
+    <el-button :loading="checking" class="auth-btn" type="primary" @click="auth"
+      >Auth</el-button
     >
-      {{ errorMsg }}.
-    </w-notification>
   </div>
 </template>
 
@@ -54,6 +55,13 @@ const auth = async () => {
 .auth {
   &-btn {
     margin-top: 1rem;
+    width: 100%;
+  }
+  .budget-icon {
+    display: block;
+    width: 100px;
+    margin: 0 auto;
+    margin-top: 100px;
   }
 }
 </style>

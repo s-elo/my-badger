@@ -7,7 +7,6 @@ import AddBudget from '../views/AddBudget.vue';
 <template>
   <div class="main-content">
     <SummaryData />
-    <hr />
     <AddBudget />
     <BudgetList />
   </div>

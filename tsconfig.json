@@ -19,8 +19,12 @@
     "noUnusedLocals": true,
     "noUnusedParameters": true,
     "noFallthroughCasesInSwitch": true,
-    "types": ["./node_modules/wave-ui/dist/types/index.d.ts"]
+    "types": [
+      "element-plus/global",
+      "@element-plus/icons-vue",
+      "unplugin-icons/types/vue"
+    ],
   },
-  "include": ["src/**/*.ts", "src/**/*.tsx", "src/**/*.vue"],
+  "include": ["src/**/*.ts", "src/**/*.tsx", "src/**/*.vue", "./auto-imports.d.ts"],
   "references": [{ "path": "./tsconfig.node.json" }]
 }

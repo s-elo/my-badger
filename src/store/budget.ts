@@ -7,7 +7,7 @@ import {
   updateSummary,
 } from '../api';
 import { BudgetItem } from '../type';
-import { syncSummary } from '../utils';
+import { formatDate, syncSummary } from '../utils';
 import { toRaw } from 'vue';
 
 export const useBudgetStore = defineStore('budget', {
@@ -59,10 +59,15 @@ export const useBudgetStore = defineStore('budget', {
         ...budget,
         id: this.summary.incrementalId + 1,
         price: Number(budget.price),
+        desc: budget.desc || 'no',
+        created: formatDate(budget.created),
       };
       const addedBudget = await addBudget(processedBudget);
 
       this.budgets.data.unshift(addedBudget);
+      this.budgets.data.sort(
+        (a, b) => new Date(a.created).getTime() - new Date(b.created).getTime(),
+      );
 
       this.summary.incrementalId += 1;
       this.summary = syncSummary(

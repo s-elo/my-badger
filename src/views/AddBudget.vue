@@ -9,16 +9,23 @@ const budgetStore = useBudgetStore();
 
 const show = ref(false);
 const adding = ref(false);
-const errorMsg = ref('');
 
 const addBudget = async (budget: BudgetItem) => {
   adding.value = true;
   try {
+    console.log(budget);
     await budgetStore.addBudget(budget);
-    show.value = false;
+    ElMessage({
+      message: 'woo, new budget!',
+      type: 'success',
+    });
   } catch (e) {
-    errorMsg.value =
-      (e as AxiosError<{ message: string }>).response?.data?.message || 'Error';
+    ElMessage({
+      message:
+        (e as AxiosError<{ message: string }>).response?.data?.message ||
+        (e as Error).message,
+      type: 'error',
+    });
   } finally {
     adding.value = false;
   }
@@ -27,31 +34,23 @@ const addBudget = async (budget: BudgetItem) => {
 
 <template>
   <div class="add-budget">
-    <w-button class="px4" @click="show = true"> + </w-button>
+    <el-button type="primary" class="add-btn" @click="show = true">
+      One More!
+    </el-button>
     <BudgetForm
       :show="show"
-      :adding="adding"
+      :loading="adding"
       @cancel="show = false"
       @confirm="addBudget"
     />
-    <w-notification
-      v-model="errorMsg"
-      :timeout="1000"
-      error
-      plain
-      round
-      shadow
-      top
-      center
-      absolute
-    >
-      {{ errorMsg }}.
-    </w-notification>
   </div>
 </template>
 
 <style lang="scss" scoped>
 .add-budget {
   margin-top: 1rem;
+  .add-btn {
+    width: 100%;
+  }
 }
 </style>

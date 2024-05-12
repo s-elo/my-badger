@@ -16,7 +16,7 @@ export function parseBudget(str: string, issueId: number): BudgetItem | null {
     issueId,
     price: Number(price),
     desc,
-    tags: tags.split(','),
+    tags: tags.replaceAll('#', '').split(','),
     created,
     updated,
   };
@@ -51,9 +51,9 @@ export function stringifyBudget({
   created,
   updated,
 }: BudgetItem) {
-  return `${id} *${type}* *${price}* *${desc}* *${tags.join(
-    ',',
-  )}* *${created}* *${updated}*`;
+  return `${id} *${type}* *${price}* *${desc}* *${tags
+    .map((tag) => `#${tag}`)
+    .join(',')}* *${created}* *${updated}*`;
 }
 
 export function syncSummary(
