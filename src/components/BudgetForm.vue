@@ -1,8 +1,9 @@
 <script lang="ts" setup>
-import { computed, ref, reactive } from 'vue';
+import { computed, ref } from 'vue';
 import { BudgetItem, BudgetType } from '../type';
-import type { FormInstance, FormRules } from 'element-plus';
 import { useBudgetStore } from '../store';
+import { QForm } from 'quasar';
+import DatePicker from './DatePicker.vue';
 
 const budgetStore = useBudgetStore();
 const props = defineProps<{
@@ -13,7 +14,7 @@ const props = defineProps<{
 
 const emits = defineEmits(['cancel', 'confirm']);
 
-const budgetFormRef = ref<FormInstance>();
+const budgetFormRef = ref<QForm | null>(null);
 const formData = ref({
   price: String(props.budget?.price || ''),
   tags: props.budget?.tags || [],
@@ -21,125 +22,152 @@ const formData = ref({
   type: props.budget?.type || BudgetType.spending,
   created: props.budget?.created || Date.now(),
 });
+const filterTag = ref<string>('');
 
-const rules = reactive<FormRules<typeof formData>>({
-  price: [
-    {
-      required: true,
-      validator: (_, value: string) =>
-        !!value && /^[\d\.\+\-\*\/]+$/.test(value),
-      trigger: 'change',
-      message: 'Invalid Expression.',
-    },
-  ],
-  tags: [{ required: true, trigger: 'change', message: 'At least one tag.' }],
-  created: [{ required: true, trigger: 'change', message: 'No Day?.' }],
-});
+const tagOptions = computed(() =>
+  Object.keys({ ...budgetStore.allTags }).filter((tag) => {
+    if (filterTag.value) {
+      return tag.includes(filterTag.value);
+    }
 
-const tagOptions = computed(() => Object.keys({ ...budgetStore.allTags }));
+    return true;
+  }),
+);
 const calculatedPrice = computed(() => {
   if (/[\+\*\-\/]/.test(formData.value.price)) {
     try {
-      return eval(formData.value.price);
+      return eval(formData.value.price) as string;
     } catch {
-      return formData.value.price || 0;
+      return 0;
     }
   }
 
   return formData.value.price || 0;
 });
 
-const confirm = (formEl?: FormInstance) => {
-  if (!formEl) return;
-  formEl.validate((valid) => {
+const confirm = () => {
+  (budgetFormRef.value as QForm)?.validate().then((valid) => {
+    console.log(valid);
+    console.log(formData.value);
     if (!valid) return;
 
     if (calculatedPrice.value) {
-      formData.value.price = calculatedPrice.value;
+      formData.value.price = String(Number(calculatedPrice.value).toFixed(2));
     }
-
-    emits('confirm', { ...(props.budget || {}), ...formData.value });
+    // emits('confirm', { ...(props.budget || {}), ...formData.value });
   });
+};
+
+const cancel = () => {
+  emits('cancel');
+  // reset formData
+  formData.value = {
+    price: '',
+    tags: [],
+    desc: '',
+    type: BudgetType.spending,
+    created: Date.now(),
+  };
 };
 </script>
 
 <template>
-  <el-dialog
+  <q-dialog
     :model-value="show"
-    title="How are you today"
-    class="budget-form-modal"
-    :show-close="false"
-    width="80%"
+    persistent
+    :full-width="true"
+    position="bottom"
+    transition-show="slide-up"
+    transition-hide="slide-down"
   >
-    <el-form
-      ref="budgetFormRef"
-      :model="formData"
-      :rules="rules"
-      label-position="top"
-      label-width="auto"
-      class="budget-form"
-    >
-      <el-form-item label="Type" prop="type">
-        <el-radio-group v-model="formData.type">
-          <el-radio :value="BudgetType.spending">spending</el-radio>
-          <el-radio :value="BudgetType.income">income</el-radio>
-        </el-radio-group>
-      </el-form-item>
-      <el-form-item label="Value" prop="price">
-        <el-input
-          v-model="formData.price"
-          placeholder="Can be an expression~"
-          clearable
-        >
-          <template #prepend>{{ calculatedPrice }}</template>
-        </el-input>
-      </el-form-item>
-      <el-form-item label="Tags" prop="tags">
-        <el-select
-          v-model="formData.tags"
-          multiple
-          filterable
-          clearable
-          allow-create
-          default-first-option
-          :reserve-keyword="false"
-          placeholder="Choose tags for this budget"
-        >
-          <el-option
-            v-for="tag in tagOptions"
-            :key="tag"
-            :label="tag"
-            :value="tag"
+    <q-card class="bg-white form-container">
+      <q-icon name="close" class="back-icon" @click="cancel" />
+      <q-form ref="budgetFormRef" class="form">
+        <div class="header">
+          <q-btn-toggle
+            v-model="formData.type"
+            toggle-color="primary"
+            class="btn-toggle"
+            size="xs"
+            dense
+            no-caps
+            :options="[
+              { label: 'spending', value: 'spending' },
+              { label: 'income', value: 'income' },
+            ]"
           />
-        </el-select>
-      </el-form-item>
-      <el-form-item label="Date" prop="created">
-        <el-date-picker
-          v-model="formData.created"
-          type="date"
-          placeholder="When?"
+          <DatePicker v-model="formData.created" class="date-picker" />
+        </div>
+        <q-input
+          v-model="formData.price"
+          lazy-rule
+          :rules="[
+            (val) =>
+              (!!val && /^[\d\.\+\-\*\/]+$/.test(val)) || 'Invalid Expression.',
+          ]"
+        >
+          <template #prepend>
+            <div class="dollar-con">¥ {{ calculatedPrice || '' }}</div>
+          </template>
+        </q-input>
+        <q-select
+          v-model="formData.tags"
+          placeholder="Tags"
+          use-input
+          use-chips
+          multiple
+          input-debounce="0"
+          new-value-mode="add"
+          :options="tagOptions"
+          lazy-rule
+          :rules="[(val) => val.length || 'At least one tag.']"
+          @filter="(val, update) => update(() => (filterTag = val))"
         />
-      </el-form-item>
-      <el-form-item label="Note" prop="desc">
-        <el-input
-          v-model="formData.desc"
-          placeholder="Any notes?"
-          type="textarea"
-        />
-      </el-form-item>
-    </el-form>
-    <template #footer>
-      <div class="spacer" />
-      <el-button outline @click="$emit('cancel')"> cancel </el-button>
-      <el-button
-        type="primary"
-        :loading="loading"
-        @click="confirm(budgetFormRef)"
-      >
-        confirm
-      </el-button>
-    </template>
-  </el-dialog>
+        <q-input v-model="formData.desc" autogrow placeholder="Any Note?" />
+        <q-btn
+          :loading="loading"
+          class="confirm-btn"
+          color="primary"
+          type="submit"
+          no-caps
+          @click="confirm"
+        >
+          OK
+          <template #loading>
+            <q-spinner-gears class="on-left" />
+            Checking...
+          </template>
+        </q-btn>
+      </q-form>
+    </q-card>
+  </q-dialog>
 </template>
 
-<style lang="scss" scoped></style>
+<style lang="scss" scoped>
+.form-container {
+  padding: 16px;
+  .form {
+    display: flex;
+    flex-direction: column;
+  }
+  .back-icon {
+    cursor: pointer;
+    margin-bottom: 7px;
+  }
+  .btn-toggle {
+    margin-top: 16px;
+  }
+  .confirm-btn {
+    align-self: self-end;
+    margin-top: 16px;
+  }
+  .header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    .date-picker {
+      margin-top: 16px;
+    }
+  }
+}
+</style>

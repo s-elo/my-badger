@@ -4,11 +4,14 @@ import { useUserStore, useBudgetStore } from '../store';
 import { decrypt } from '../utils';
 import { AxiosError } from 'axios';
 import { BUDGET_TOKEN_LOCAL_STORAGE_KEY } from '../constant';
+import { useQuasar } from 'quasar';
 
 const emit = defineEmits(['validated']);
 
 const userStore = useUserStore();
 const budgetStore = useBudgetStore();
+
+const $q = useQuasar();
 
 const password = ref('');
 const checking = ref(false);
@@ -25,11 +28,11 @@ const auth = async () => {
     emit('validated');
     localStorage.setItem(BUDGET_TOKEN_LOCAL_STORAGE_KEY, token.value);
   } catch (e) {
-    ElMessage({
+    $q.notify({
       message:
         (e as AxiosError<{ message: string }>).response?.data?.message ||
         (e as Error).message,
-      type: 'error',
+      type: 'negative',
     });
   } finally {
     checking.value = false;
@@ -40,19 +43,35 @@ const auth = async () => {
 <template>
   <div class="auth">
     <img src="../assets/budgets.svg" class="budget-icon" />
-    <el-input v-model="password" type="password" placeholder="Who Are You?">
-      <template #prefix>
-        <div class="prefix">😜</div>
-      </template>
-    </el-input>
-    <el-button :loading="checking" class="auth-btn" type="primary" @click="auth"
-      >Auth</el-button
-    >
+    <q-form class="form-container" @submit="auth">
+      <q-input
+        v-model="password"
+        type="password"
+        label="😜"
+        placeholder="Who Are You?"
+      />
+      <q-btn
+        type="submit"
+        :loading="checking"
+        class="auth-btn"
+        color="primary"
+        no-caps
+      >
+        You don't know your father?
+        <template #loading>
+          <q-spinner-gears class="on-left" />
+          Checking...
+        </template>
+      </q-btn>
+    </q-form>
   </div>
 </template>
 
 <style lang="scss" scoped>
 .auth {
+  .form-container {
+    width: 100%;
+  }
   &-btn {
     margin-top: 1rem;
     width: 100%;

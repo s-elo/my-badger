@@ -4,13 +4,18 @@ export function padNum(num: number) {
   return String(num).padStart(2, '0');
 }
 
-export function formatDate(time: number | string) {
+export function formatDate(
+  time: number | string,
+  format = 'YYYY-MM-DD hh:mm:ss',
+) {
   const date = new Date(time);
-  return `${date.getFullYear()}-${padNum(date.getMonth() + 1)}-${padNum(
-    date.getDate(),
-  )} ${padNum(date.getHours())}:${padNum(date.getMinutes())}:${padNum(
-    date.getSeconds(),
-  )}`;
+  return format
+    .replaceAll('YYYY', String(date.getFullYear()))
+    .replaceAll('MM', String(padNum(date.getMonth() + 1)))
+    .replaceAll('DD', padNum(date.getDate()))
+    .replaceAll('hh', padNum(date.getHours()))
+    .replaceAll('mm', padNum(date.getMinutes()))
+    .replaceAll('ss', padNum(date.getSeconds()));
 }
 
 export function getCurrentRecordTitle() {

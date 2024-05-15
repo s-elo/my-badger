@@ -13,13 +13,17 @@
   },
   "dependencies": {
     "@element-plus/icons-vue": "^2.3.1",
+    "@mathieustan/vue-datepicker": "^0.2.11",
+    "@quasar/extras": "^1.16.11",
     "@vueuse/core": "^10.9.0",
     "axios": "^1.6.8",
     "element-plus": "^2.7.2",
     "pinia": "^2.1.7",
+    "quasar": "^2.16.3",
     "vue": "^3.4.21"
   },
   "devDependencies": {
+    "@quasar/vite-plugin": "^1.7.0",
     "@vitejs/plugin-vue": "^5.0.4",
     "@vue/eslint-config-typescript": "^11.0.2",
     "eslint": "^8.31.0",

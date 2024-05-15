@@ -10,6 +10,7 @@ declare module 'vue' {
     BudgetForm: typeof import('./src/components/BudgetForm.vue')['default']
     BudgetItem: typeof import('./src/components/BudgetItem.vue')['default']
     BudgetList: typeof import('./src/components/BudgetList.vue')['default']
+    DatePicker: typeof import('./src/components/DatePicker.vue')['default']
     ElButton: typeof import('element-plus/es')['ElButton']
     ElCol: typeof import('element-plus/es')['ElCol']
     ElDatePicker: typeof import('element-plus/es')['ElDatePicker']
