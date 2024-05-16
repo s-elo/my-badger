@@ -45,29 +45,22 @@ const calculatedPrice = computed(() => {
   return formData.value.price || 0;
 });
 
-const confirm = () => {
-  (budgetFormRef.value as QForm)?.validate().then((valid) => {
-    console.log(valid);
-    console.log(formData.value);
-    if (!valid) return;
+const confirm = async () => {
+  const valid = await (budgetFormRef.value as QForm)?.validate();
 
-    if (calculatedPrice.value) {
-      formData.value.price = String(Number(calculatedPrice.value).toFixed(2));
-    }
-    // emits('confirm', { ...(props.budget || {}), ...formData.value });
+  console.log(valid);
+  console.log(formData.value);
+  if (!valid) return;
+
+  emits('confirm', {
+    ...(props.budget || {}),
+    ...formData.value,
+    price: String(Number(calculatedPrice.value).toFixed(2)),
   });
 };
 
 const cancel = () => {
   emits('cancel');
-  // reset formData
-  formData.value = {
-    price: '',
-    tags: [],
-    desc: '',
-    type: BudgetType.spending,
-    created: Date.now(),
-  };
 };
 </script>
 
@@ -128,14 +121,12 @@ const cancel = () => {
           :loading="loading"
           class="confirm-btn"
           color="primary"
-          type="submit"
           no-caps
           @click="confirm"
         >
           OK
           <template #loading>
             <q-spinner-gears class="on-left" />
-            Checking...
           </template>
         </q-btn>
       </q-form>

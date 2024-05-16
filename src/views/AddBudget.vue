@@ -4,6 +4,9 @@ import BudgetForm from '../components/BudgetForm.vue';
 import { useBudgetStore } from '../store';
 import { BudgetItem } from '../type';
 import { AxiosError } from 'axios';
+import { useQuasar } from 'quasar';
+
+const $q = useQuasar();
 
 const budgetStore = useBudgetStore();
 
@@ -15,16 +18,16 @@ const addBudget = async (budget: BudgetItem) => {
   try {
     console.log(budget);
     await budgetStore.addBudget(budget);
-    ElMessage({
+    $q.notify({
       message: 'woo, new budget!',
-      type: 'success',
+      type: 'positive',
     });
   } catch (e) {
-    ElMessage({
+    $q.notify({
       message:
         (e as AxiosError<{ message: string }>).response?.data?.message ||
         (e as Error).message,
-      type: 'error',
+      type: 'negative',
     });
   } finally {
     adding.value = false;
@@ -34,10 +37,16 @@ const addBudget = async (budget: BudgetItem) => {
 
 <template>
   <div class="add-budget">
-    <el-button type="primary" class="add-btn" @click="show = true">
-      One More!
-    </el-button>
+    <q-btn
+      class="add-btn"
+      round
+      color="primary"
+      icon="savings"
+      @click="show = true"
+    />
+    <!-- need to rerender every time -->
     <BudgetForm
+      v-if="show"
       :show="show"
       :loading="adding"
       @cancel="show = false"
@@ -50,7 +59,9 @@ const addBudget = async (budget: BudgetItem) => {
 .add-budget {
   margin-top: 1rem;
   .add-btn {
-    width: 100%;
+    position: fixed;
+    bottom: 24px;
+    right: 8px;
   }
 }
 </style>

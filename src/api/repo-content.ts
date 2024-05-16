@@ -11,15 +11,13 @@ export async function createOrUpdateRepoContent(
   path: string,
   content: string, // base64 encoded content
   message: string,
+  sha: string,
 ) {
-  const originalContent = await getRepoContent(path);
   return gbReq.put(`/repos/${OWNER}/${REPO}/contents/${path}`, {
     message,
     content,
-    sha: originalContent.sha,
-  }) as Promise<{
-    content?: { name: string };
-  }>;
+    sha,
+  }) as Promise<RepoContent>;
 }
 
 export type RepoContent = {

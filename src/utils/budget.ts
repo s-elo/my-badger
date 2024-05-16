@@ -1,5 +1,9 @@
 import { IssueItem, Summary } from '../api';
-import { PARSE_BUDGET_ITEM_REG } from '../constant';
+import {
+  DESC_LINE_SPLITTER,
+  LINE_SPLITTER,
+  PARSE_BUDGET_ITEM_REG,
+} from '../constant';
 import { BudgetItem, BudgetType } from '../type';
 
 export function parseBudget(str: string, issueId: number): BudgetItem | null {
@@ -15,7 +19,7 @@ export function parseBudget(str: string, issueId: number): BudgetItem | null {
     type: type as BudgetType,
     issueId,
     price: Number(price),
-    desc,
+    desc: desc.replaceAll(DESC_LINE_SPLITTER, LINE_SPLITTER),
     tags: tags.replaceAll('#', '').split(','),
     created,
     updated,
@@ -23,7 +27,7 @@ export function parseBudget(str: string, issueId: number): BudgetItem | null {
 }
 
 export function parseBudgets(issueBody: string, issueId: number) {
-  const items = issueBody.split('\n');
+  const items = issueBody.split(LINE_SPLITTER);
   return items.reduce<BudgetItem[]>((budgets, item) => {
     const budget = parseBudget(item, issueId);
     if (budget) {

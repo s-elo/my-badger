@@ -9,10 +9,12 @@ import {
 import { BudgetItem } from '../type';
 import { formatDate, syncSummary } from '../utils';
 import { toRaw } from 'vue';
+import { DESC_LINE_SPLITTER, LINE_SPLITTER } from '../constant';
 
 export const useBudgetStore = defineStore('budget', {
   state: () => ({
     summary: null as Summary | null,
+    summarySha: '',
     budgets: {
       data: [] as BudgetItem[],
       pageIdx: 0,
@@ -26,16 +28,15 @@ export const useBudgetStore = defineStore('budget', {
     budgetList: (state) => state.budgets.data,
   },
   actions: {
-    setSummary(sum: Summary) {
-      this.summary = sum;
-    },
     async getSummary() {
-      const sum = await getSummary();
+      const { sum, sha } = await getSummary();
       this.summary = sum;
+      this.summarySha = sha;
     },
-    async syncSummary(sum: Summary) {
+    async setSummary(sum: Summary) {
       this.summary = sum;
-      return updateSummary(sum);
+      const { sha } = await updateSummary(toRaw(sum), this.summarySha);
+      this.summarySha = sha;
     },
     async fetchBudgets() {
       try {
@@ -59,14 +60,19 @@ export const useBudgetStore = defineStore('budget', {
         ...budget,
         id: this.summary.incrementalId + 1,
         price: Number(budget.price),
-        desc: budget.desc || 'no',
+        desc: (budget.desc || 'no').replaceAll(
+          LINE_SPLITTER,
+          DESC_LINE_SPLITTER,
+        ),
         created: formatDate(budget.created),
       };
       const addedBudget = await addBudget(processedBudget);
 
       this.budgets.data.unshift(addedBudget);
-      this.budgets.data.sort(
-        (a, b) => new Date(a.created).getTime() - new Date(b.created).getTime(),
+      this.budgets.data = this.budgets.data.sort((a, b) =>
+        new Date(b.created).getTime() - new Date(a.created).getTime() < 0
+          ? 1
+          : -1,
       );
 
       this.summary.incrementalId += 1;
@@ -77,7 +83,7 @@ export const useBudgetStore = defineStore('budget', {
         budget.type,
       );
 
-      await updateSummary(toRaw(this.summary));
+      await this.setSummary(this.summary);
     },
   },
 });

@@ -12,3 +12,7 @@ export const PARSE_BUDGET_ITEM_REG =
 export const BUDGET_TYPE_OPTS = Object.keys(BudgetType).map((key) => ({
   label: key,
 }));
+
+export const LINE_SPLITTER = '\n';
+
+export const DESC_LINE_SPLITTER = '>>>';

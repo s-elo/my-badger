@@ -1,6 +1,8 @@
+import { DESC_LINE_SPLITTER, LINE_SPLITTER } from '../constant';
 import { BudgetItem } from '../type';
 import {
   base64ToStr,
+  formatDate,
   getCurrentRecordTitle,
   issuesToBudgets,
   strToBase64,
@@ -31,11 +33,13 @@ export async function getBudgets(params?: GetBudgetParams) {
 export async function addBudget(budget: BudgetItem) {
   const curIssueTitle = getCurrentRecordTitle();
 
+  budget.updated = formatDate(Date.now());
+
   const issueExisted = await checkIssue(curIssueTitle);
   if (issueExisted) {
     budget.issueId = issueExisted.number;
     await updateIssue(issueExisted.number, {
-      body: `${stringifyBudget(budget)}\n${issueExisted.body}`,
+      body: `${stringifyBudget(budget)}${LINE_SPLITTER}${issueExisted.body}`,
     });
   } else {
     const issue = await createIssue({
@@ -45,23 +49,24 @@ export async function addBudget(budget: BudgetItem) {
     budget.issueId = issue.number;
   }
 
+  budget.desc = budget.desc.replaceAll(DESC_LINE_SPLITTER, LINE_SPLITTER);
+
   return budget;
 }
 
 export async function getSummary() {
-  const { content } = await getRepoContent('summary.json');
+  const { content, sha } = await getRepoContent('summary.json');
   const decodedContent = base64ToStr(content);
-  return JSON.parse(decodedContent) as Summary;
+  return { sum: JSON.parse(decodedContent) as Summary, sha };
 }
 
-export async function updateSummary(sum: Summary) {
-  console.log(sum, JSON.stringify(sum));
+export async function updateSummary(sum: Summary, sha: string) {
   const encodedSum = strToBase64(JSON.stringify(sum));
-  console.log(encodedSum);
   return createOrUpdateRepoContent(
     'summary.json',
     encodedSum,
     'update summary',
+    sha,
   );
 }
 

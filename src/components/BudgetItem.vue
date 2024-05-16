@@ -15,13 +15,14 @@ const editBudget = (budget: BudgetItem) => {
 </script>
 
 <template>
-  <div class="budget-item">
+  <div class="budget-item" @click="show = true">
     <el-tag class="type">{{ budget.type }}</el-tag>
     <div class="price">{{ budget.price }}</div>
     <div class="desc">{{ budget.desc }}</div>
     <div class="date">{{ budget.created.split(' ')[0] }}</div>
-    <el-button outline size="small" @click="show = true">🔧</el-button>
+    <!-- need to rerender every time -->
     <BudgetForm
+      v-if="show"
       :show="show"
       :budget="budget"
       @cancel="show = false"
