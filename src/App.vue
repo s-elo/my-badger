@@ -29,7 +29,7 @@ onMounted(() => {
 
 <style scoped>
 .main-wrapper {
-  padding: 1rem;
+  padding: 1rem 0;
   width: 100vw;
   height: 100vh;
 }

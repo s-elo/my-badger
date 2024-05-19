@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { computed, ref } from 'vue';
+import { computed, ref, watch } from 'vue';
 import { BudgetItem, BudgetType } from '../type';
 import { useBudgetStore } from '../store';
 import { QForm } from 'quasar';
@@ -10,6 +10,7 @@ const props = defineProps<{
   budget?: BudgetItem;
   show: boolean;
   loading?: boolean;
+  mode?: 'Add' | 'Edit';
 }>();
 
 const emits = defineEmits(['cancel', 'confirm']);
@@ -23,6 +24,29 @@ const formData = ref({
   created: props.budget?.created || Date.now(),
 });
 const filterTag = ref<string>('');
+
+watch(
+  () => props.show,
+  () => {
+    if (props.show) {
+      formData.value = {
+        price: String(props.budget?.price || ''),
+        tags: props.budget?.tags || [],
+        desc: props.budget?.desc || '',
+        type: props.budget?.type || BudgetType.spending,
+        created: props.budget?.created || Date.now(),
+      };
+    } else {
+      formData.value = {
+        price: '',
+        tags: [],
+        desc: '',
+        type: BudgetType.spending,
+        created: Date.now(),
+      };
+    }
+  },
+);
 
 const tagOptions = computed(() =>
   Object.keys({ ...budgetStore.allTags }).filter((tag) => {
@@ -79,6 +103,7 @@ const cancel = () => {
         <div class="header">
           <q-btn-toggle
             v-model="formData.type"
+            :disable="mode === 'Edit'"
             toggle-color="primary"
             class="btn-toggle"
             size="xs"

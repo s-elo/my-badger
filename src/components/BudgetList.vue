@@ -8,6 +8,11 @@ const budgetStore = useBudgetStore();
 
 const loading = ref(true);
 
+const onLoad = (index: number, done: () => void) => {
+  console.log(index);
+  done();
+};
+
 onMounted(async () => {
   try {
     await budgetStore.fetchBudgets();
@@ -25,12 +30,25 @@ onMounted(async () => {
 </script>
 
 <template>
-  <div v-loading="loading" class="budget-list">
-    <BudgetItem
-      v-for="budget in budgetStore.budgetList"
-      :key="budget.id"
-      :budget="budget"
-    />
+  <div class="budget-list">
+    <q-infinite-scroll :offset="100" @load="onLoad">
+      <q-card
+        v-for="dateBudgets in budgetStore.budgetsByDate"
+        :key="dateBudgets.date"
+        class="budget-group-card"
+      >
+        <BudgetItem
+          v-for="budget in dateBudgets.budgets"
+          :key="budget.id"
+          :budget="budget"
+        />
+      </q-card>
+      <template #loading>
+        <div class="row justify-center q-my-md">
+          <q-spinner-gears color="primary" size="40px" />
+        </div>
+      </template>
+    </q-infinite-scroll>
     <el-empty
       v-if="!loading && !budgetStore.budgetList.length"
       class="no-data"
@@ -44,7 +62,6 @@ onMounted(async () => {
 .budget-list {
   width: 100%;
   flex: 1;
-  margin-top: 1rem;
   overflow: auto;
   display: flex;
   flex-direction: column;
@@ -54,6 +71,10 @@ onMounted(async () => {
   }
   .loading {
     align-self: center;
+  }
+  .budget-group-card {
+    padding: 1rem;
+    margin: 1rem;
   }
 }
 </style>

@@ -17,6 +17,7 @@ export const useBudgetStore = defineStore('budget', {
     summarySha: '',
     budgets: {
       data: [] as BudgetItem[],
+      groupByDate: [] as { date: string; budgets: BudgetItem[] }[],
       pageIdx: 0,
       pageSize: 10,
     },
@@ -26,6 +27,7 @@ export const useBudgetStore = defineStore('budget', {
     totalSpending: (state) => state.summary?.spending || 0,
     allTags: (state) => state.summary?.tags || {},
     budgetList: (state) => state.budgets.data,
+    budgetsByDate: (state) => state.budgets.groupByDate,
   },
   actions: {
     async getSummary() {
@@ -46,6 +48,23 @@ export const useBudgetStore = defineStore('budget', {
           pageSize: this.budgets.pageSize,
         });
         this.budgets.data.push(...budgets);
+
+        // by date
+        const dateRecord = this.budgets.data.reduce<
+          Record<string, BudgetItem[]>
+        >((ret, item) => {
+          const date = item.created.split(' ')[0];
+          ret[date] = ret[date] || [];
+          ret[date].push(item);
+          return ret;
+        }, {});
+
+        Object.keys(dateRecord).forEach((date) => {
+          this.budgets.groupByDate.push({
+            date,
+            budgets: dateRecord[date],
+          });
+        });
       } catch (e) {
         this.budgets.pageIdx -= 1;
         throw e;

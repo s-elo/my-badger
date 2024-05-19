@@ -16,7 +16,6 @@ const adding = ref(false);
 const addBudget = async (budget: BudgetItem) => {
   adding.value = true;
   try {
-    console.log(budget);
     await budgetStore.addBudget(budget);
     $q.notify({
       message: 'woo, new budget!',
@@ -44,11 +43,10 @@ const addBudget = async (budget: BudgetItem) => {
       icon="savings"
       @click="show = true"
     />
-    <!-- need to rerender every time -->
     <BudgetForm
-      v-if="show"
       :show="show"
       :loading="adding"
+      :mode="'Add'"
       @cancel="show = false"
       @confirm="addBudget"
     />
@@ -60,6 +58,7 @@ const addBudget = async (budget: BudgetItem) => {
   margin-top: 1rem;
   .add-btn {
     position: fixed;
+    z-index: 1000;
     bottom: 24px;
     right: 8px;
   }

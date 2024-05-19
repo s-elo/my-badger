@@ -11,29 +11,49 @@ const loading = computed(() => !budgetStore.summary);
 </script>
 
 <template>
-  <el-row>
-    <el-col :span="8">
-      <el-statistic v-loading="loading" title="Balance" :value="balance" />
-    </el-col>
-    <el-col :span="8">
-      <el-statistic
-        v-loading="loading"
-        title="Income"
-        :value="budgetStore.totalIncoming"
-      />
-    </el-col>
-    <el-col :span="8">
-      <el-statistic
-        v-loading="loading"
-        title="Spending"
-        :value="budgetStore.totalSpending"
-      />
-    </el-col>
-  </el-row>
+  <q-card class="row summary-card">
+    <div class="col">
+      <div class="item">
+        <div class="title">Balance</div>
+        <div class="value">{{ balance }}</div>
+      </div>
+    </div>
+    <div class="col">
+      <div class="item">
+        <div class="title">Income</div>
+        <div class="value">{{ budgetStore.summary?.income || 0 }}</div>
+      </div>
+    </div>
+    <div class="col">
+      <div class="item">
+        <div class="title">Spending</div>
+        <div class="value">{{ budgetStore.summary?.spending || 0 }}</div>
+      </div>
+    </div>
+    <q-inner-loading :showing="loading">
+      <q-spinner-gears size="50px" color="primary" />
+    </q-inner-loading>
+  </q-card>
 </template>
 
 <style lang="scss" scoped>
-.el-col {
+@import '../common.scss';
+
+.summary-card {
+  padding: 1rem 0;
+  margin: 0 1rem;
+  overflow: auto;
+}
+.item {
+  padding: 0 1rem;
   text-align: center;
+  min-width: 90px;
+  .title {
+    color: $grayText;
+    font-size: 12px;
+  }
+  .value {
+    font-size: 20px;
+  }
 }
 </style>
