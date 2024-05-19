@@ -37,7 +37,9 @@ const editBudget = async (budget: BudgetItem) => {
 
 <template>
   <div class="budget-item" @click="show = true">
-    <el-tag class="type">{{ budget.type }}</el-tag>
+    <q-chip size="xs" color="primary" text-color="white">
+      {{ budget.type }}
+    </q-chip>
     <div class="price">{{ budget.price }}</div>
     <div class="desc">{{ budget.desc }}</div>
     <div class="date">{{ budget.created.split(' ')[0] }}</div>

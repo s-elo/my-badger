@@ -3,6 +3,9 @@ import { onMounted, ref } from 'vue';
 import { AxiosError } from 'axios';
 import { useBudgetStore } from '../store';
 import BudgetItem from './BudgetItem.vue';
+import { useQuasar } from 'quasar';
+
+const $q = useQuasar();
 
 const budgetStore = useBudgetStore();
 
@@ -17,11 +20,11 @@ onMounted(async () => {
   try {
     await budgetStore.fetchBudgets();
   } catch (e) {
-    ElMessage({
+    $q.notify({
       message:
         (e as AxiosError<{ message: string }>).response?.data?.message ||
         (e as Error).message,
-      type: 'error',
+      type: 'negative',
     });
   } finally {
     loading.value = false;
@@ -49,12 +52,13 @@ onMounted(async () => {
         </div>
       </template>
     </q-infinite-scroll>
-    <el-empty
+    <div
       v-if="!loading && !budgetStore.budgetList.length"
       class="no-data"
-      image="https://api.oneneko.com/v1/bing_today"
       description="Start Your Budget Now!"
-    />
+    >
+      Start Your Budget Now!
+    </div>
   </div>
 </template>
 
