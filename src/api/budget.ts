@@ -5,12 +5,15 @@ import {
   formatDate,
   getCurrentRecordTitle,
   issuesToBudgets,
+  sortByCreateDate,
   strToBase64,
   stringifyBudget,
+  set,
 } from '../utils';
 import {
   checkIssue,
   createIssue,
+  getIssue,
   getIssues,
   searchIssues,
   updateIssue,
@@ -30,16 +33,34 @@ export async function getBudgets(params?: GetBudgetParams) {
   return issuesToBudgets(issues);
 }
 
-export async function addBudget(budget: BudgetItem) {
-  const curIssueTitle = getCurrentRecordTitle();
+export async function getIssueBudgets(issueNum: number) {
+  const issue = await getIssue(issueNum);
+  return issuesToBudgets([issue]);
+}
+
+/** add to specific issue,
+ * if no specified date, add to current month issue;
+ */
+export async function addBudget(
+  budget: BudgetItem,
+  createdTime?: number | string,
+) {
+  const curIssueTitle = getCurrentRecordTitle(createdTime);
 
   budget.updated = formatDate(Date.now());
 
   const issueExisted = await checkIssue(curIssueTitle);
   if (issueExisted) {
     budget.issueId = issueExisted.number;
+    const existedBudgets = issuesToBudgets([issueExisted]);
+
     await updateIssue(issueExisted.number, {
-      body: `${stringifyBudget(budget)}${LINE_SPLITTER}${issueExisted.body}`,
+      body: set([budget, ...existedBudgets], 'id')
+        .sort(sortByCreateDate)
+        .map((item) =>
+          stringifyBudget(item).replaceAll(LINE_SPLITTER, DESC_LINE_SPLITTER),
+        )
+        .join(LINE_SPLITTER),
     });
   } else {
     const issue = await createIssue({
@@ -52,6 +73,18 @@ export async function addBudget(budget: BudgetItem) {
   budget.desc = budget.desc.replaceAll(DESC_LINE_SPLITTER, LINE_SPLITTER);
 
   return budget;
+}
+
+export async function deleteBudget(budget: BudgetItem) {
+  const issueBudgets = await getIssueBudgets(budget.issueId);
+  const filteredBudgets = issueBudgets.filter((item) => item.id !== budget.id);
+  return updateIssue(budget.issueId, {
+    body: filteredBudgets
+      .map((item) =>
+        stringifyBudget(item).replaceAll(LINE_SPLITTER, DESC_LINE_SPLITTER),
+      )
+      .join(LINE_SPLITTER),
+  });
 }
 
 export async function getSummary() {

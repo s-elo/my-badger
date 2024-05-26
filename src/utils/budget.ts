@@ -77,3 +77,7 @@ export function syncSummary(
   });
   return sum;
 }
+
+export function sortByCreateDate(a: BudgetItem, b: BudgetItem) {
+  return new Date(b.created).getTime() - new Date(a.created).getTime();
+}

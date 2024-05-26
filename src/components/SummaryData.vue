@@ -15,19 +15,19 @@ const loading = computed(() => !budgetStore.summary);
     <div class="col">
       <div class="item">
         <div class="title">Balance</div>
-        <div class="value">{{ balance }}</div>
+        <div class="value">¥{{ balance }}</div>
       </div>
     </div>
     <div class="col">
       <div class="item">
         <div class="title">Income</div>
-        <div class="value">{{ budgetStore.summary?.income || 0 }}</div>
+        <div class="value">¥{{ budgetStore.summary?.income || 0 }}</div>
       </div>
     </div>
     <div class="col">
       <div class="item">
         <div class="title">Spending</div>
-        <div class="value">{{ budgetStore.summary?.spending || 0 }}</div>
+        <div class="value">¥{{ budgetStore.summary?.spending || 0 }}</div>
       </div>
     </div>
     <q-inner-loading :showing="loading">
@@ -50,10 +50,10 @@ const loading = computed(() => !budgetStore.summary);
   min-width: 90px;
   .title {
     color: $grayText;
-    font-size: 12px;
+    font-size: 16px;
   }
   .value {
-    font-size: 20px;
+    font-size: 12px;
   }
 }
 </style>

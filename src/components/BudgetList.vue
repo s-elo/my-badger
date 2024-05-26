@@ -11,8 +11,8 @@ const budgetStore = useBudgetStore();
 
 const loading = ref(true);
 
-const onLoad = (index: number, done: () => void) => {
-  console.log(index);
+const onLoad = async (_: number, done: () => void) => {
+  await budgetStore.fetchBudgets();
   done();
 };
 
@@ -34,7 +34,7 @@ onMounted(async () => {
 
 <template>
   <div class="budget-list">
-    <q-infinite-scroll :offset="100" @load="onLoad">
+    <q-infinite-scroll @load="onLoad">
       <q-card
         v-for="dateBudgets in budgetStore.budgetsByDate"
         :key="dateBudgets.date"

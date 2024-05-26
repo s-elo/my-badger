@@ -69,6 +69,7 @@ const auth = async () => {
 
 <style lang="scss" scoped>
 .auth {
+  padding: 24px;
   .form-container {
     width: 100%;
   }

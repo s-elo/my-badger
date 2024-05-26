@@ -76,11 +76,15 @@ const confirm = async () => {
   console.log(formData.value);
   if (!valid) return;
 
-  emits('confirm', {
-    ...(props.budget || {}),
-    ...formData.value,
-    price: String(Number(calculatedPrice.value).toFixed(2)),
-  });
+  emits(
+    'confirm',
+    {
+      ...(props.budget || {}),
+      ...formData.value,
+      price: Number(String(Number(calculatedPrice.value).toFixed(2))),
+    },
+    props.budget,
+  );
 };
 
 const cancel = () => {
@@ -103,7 +107,6 @@ const cancel = () => {
         <div class="header">
           <q-btn-toggle
             v-model="formData.type"
-            :disable="mode === 'Edit'"
             toggle-color="primary"
             class="btn-toggle"
             size="xs"

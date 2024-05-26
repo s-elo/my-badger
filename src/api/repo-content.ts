@@ -17,7 +17,7 @@ export async function createOrUpdateRepoContent(
     message,
     content,
     sha,
-  }) as Promise<RepoContent>;
+  }) as Promise<{ content: RepoContent }>;
 }
 
 export type RepoContent = {

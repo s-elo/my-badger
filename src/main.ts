@@ -1,6 +1,6 @@
 import { createApp } from 'vue';
 import { createPinia } from 'pinia';
-import { Quasar, Notify } from 'quasar';
+import { Quasar, Notify, Loading, Dialog } from 'quasar';
 import '@quasar/extras/material-icons/material-icons.css';
 import 'quasar/src/css/index.sass';
 import './style.scss';
@@ -11,11 +11,13 @@ const app = createApp(App);
 app.use(Quasar, {
   plugins: {
     Notify,
+    Loading,
+    Dialog,
   },
   config: {
     notify: {
       position: 'top',
-      timeout: 500,
+      timeout: 100,
     },
   },
 });

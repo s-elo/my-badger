@@ -16,8 +16,8 @@ export function formatDate(
     .replaceAll('ss', padNum(date.getSeconds()));
 }
 
-export function getCurrentRecordTitle() {
-  const date = new Date(Date.now());
+export function getCurrentRecordTitle(time: number | string = Date.now()) {
+  const date = new Date(time);
   return `@RECORD:${date.getFullYear()}-${padNum(date.getMonth() + 1)}`;
 }
 
